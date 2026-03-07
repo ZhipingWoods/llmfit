@@ -1,0 +1,23 @@
+name: Sync Fork with Upstream
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Run every 6 hours
+  workflow_dispatch:         # Allow manual trigger from the Actions tab
+
+jobs:
+  sync:
+    name: Sync Fork
+    runs-on: ubuntu-latest
+    # Only run when the workflow is executed in the fork itself, not in the
+    # upstream repo (in case this file is ever merged upstream).
+    if: github.repository_owner != 'AlexsJones'
+
+    permissions:
+      contents: write  # Required to push the synced commits
+
+    steps:
+      - name: Sync fork branch with upstream
+        run: gh repo sync "$GITHUB_REPOSITORY" --branch main --force
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
